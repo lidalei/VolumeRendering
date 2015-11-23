@@ -1,6 +1,9 @@
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
+ * Nov. 23, 2015
+ * @author Dalei Li
+ * non-normalized gradient vector
  */
 package volume;
 
@@ -50,10 +53,68 @@ public class GradientVolume {
     }
 
     private void compute() {
-
-        // this just initializes all gradients to the vector (0,0,0)
-        for (int i=0; i<data.length; i++) {
-            data[i] = zero;
+        
+        // non-normalized gradient vector
+        for (int i = 0; i < data.length; i++) {
+            
+            int x = i % dimX;
+            int y = i / dimX % dimY;
+            int z = i / dimX / dimZ;
+            
+            float gx = 0;
+            float gy = 0;
+            float gz = 0;
+            
+            boolean xISBounded = false;
+            boolean yISBounded = false;
+            boolean zISBounded = false;
+            
+            if (x == dimX - 1) {
+                gx = volume.getVoxel(x, y, z) - volume.getVoxel(x - 1, y, z);
+                xISBounded = true;
+            }
+            
+            if (y == dimY - 1) {
+                gy = volume.getVoxel(x, y, z) - volume.getVoxel(x, y - 1, z);
+                yISBounded = true;
+            }
+            
+            if (z == dimZ - 1) {
+                gz = volume.getVoxel(x, y, z) - volume.getVoxel(x, y, z - 1);
+                zISBounded = true;
+            }
+            
+            if (x == 0) {
+                gx = volume.getVoxel(x + 1, y, z) - volume.getVoxel(x, y, z);
+                xISBounded = true;
+            }
+            
+            if (y == 0) {
+                gy = volume.getVoxel(x, y + 1, z) - volume.getVoxel(x, y, z);
+                yISBounded = true;
+            }
+            
+            if (z == 0) {
+                gz = volume.getVoxel(x, y, z + 1) - volume.getVoxel(x, y, z);
+                zISBounded = true;
+            }
+            
+            if (xISBounded == false) {
+                gx = (volume.getVoxel(x + 1, y, z) - volume.getVoxel(x - 1, y, z)) >> 1;
+            }
+            
+            if (yISBounded == false) {
+                gy = (volume.getVoxel(x, y + 1, z) - volume.getVoxel(x, y - 1, z)) >> 1;
+            }
+            
+            if (zISBounded == false) {
+                gz = (volume.getVoxel(x, y, z + 1) - volume.getVoxel(x, y, z - 1)) >> 1;
+            }
+            
+            data[i] = new VoxelGradient(gx, gy, gz);
+            
+            // this just initializes all gradients to the vector (0,0,0)
+            // data[i] = zero;
         }
                 
     }
