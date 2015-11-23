@@ -193,7 +193,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         for (int j = 0; j < image.getHeight(); j++) {
             for (int i = 0; i < image.getWidth(); i++) {
                 int val=0;
-                double len=Math.abs(viewVec[0]*volume.getDimX()+viewVec[1]*volume.getDimY()+viewVec[2]*volume.getDimZ());
+                double len=Math.sqrt(Math.pow(viewVec[0]*volume.getDimX(),2)+Math.pow(viewVec[1]*volume.getDimY(),2)+Math.pow(viewVec[2]*volume.getDimZ(),2));
                 for(long u=-(Math.round(len));u<len;u++){
                     pixelCoord[0] = uVec[0] * (i - imageCenter) + vVec[0] * (j - imageCenter)+ (u) * viewVec[0]
                             + volumeCenter[0];
