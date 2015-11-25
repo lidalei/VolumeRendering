@@ -26,7 +26,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
     private Volume volume = null;
     private GradientVolume gradients = null;
-    public String Method_Implemented="Slicer";
+    public String Method_Implemented = "Slicer";
     RaycastRendererPanel panel;
     TransferFunction tFunc;
     TransferFunctionEditor tfEditor;
@@ -114,7 +114,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         VectorMath.setVector(viewVec, viewMatrix[2], viewMatrix[6], viewMatrix[10]);
         VectorMath.setVector(uVec, viewMatrix[0], viewMatrix[4], viewMatrix[8]);
         VectorMath.setVector(vVec, viewMatrix[1], viewMatrix[5], viewMatrix[9]);
-       
 
         // image is square
         int imageCenter = image.getWidth() / 2;
@@ -161,10 +160,19 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     }
 
     void mip(double[] viewMatrix) {
-
         // clear image
-        for (int j = 0; j < image.getHeight(); j++) {
-            for (int i = 0; i < image.getWidth(); i++) {
+        
+        int imageHeight = image.getHeight();
+        int imageWidth = image.getWidth();
+        
+        int volumeDimX = volume.getDimX();
+        int volumeDimY = volume.getDimY();
+        int volumeDimZ = volume.getDimZ();
+        
+        
+        
+        for (int j = 0; j < imageHeight; j++) {
+            for (int i = 0; i < imageWidth; i++) {
                 image.setRGB(i, j, 0);
             }
         }
@@ -179,37 +187,53 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         VectorMath.setVector(vVec, viewMatrix[1], viewMatrix[5], viewMatrix[9]);
 
         // image is square
-        int imageCenter = image.getWidth() / 2;
+        int imageCenter = imageWidth / 2;
 
         double[] pixelCoord = new double[3];
         double[] volumeCenter = new double[3];
-        VectorMath.setVector(volumeCenter, volume.getDimX() / 2, volume.getDimY() / 2, volume.getDimZ() / 2);
+        VectorMath.setVector(volumeCenter, volumeDimX / 2, volumeDimY / 2, volumeDimZ / 2);
 
         // sample on a plane through the origin of the volume data
         double max = volume.getMaximum();
         TFColor voxelColor = new TFColor();
 
+        double len = Math.sqrt(Math.pow(viewVec[0] * volumeDimX,2)+Math.pow(viewVec[1] * volumeDimY,2)+Math.pow(viewVec[2] * volumeDimZ,2));
         
-        for (int j = 0; j < image.getHeight(); j++) {
-            for (int i = 0; i < image.getWidth(); i++) {
-                int val=0;
-                double len=Math.sqrt(Math.pow(viewVec[0]*volume.getDimX(),2)+Math.pow(viewVec[1]*volume.getDimY(),2)+Math.pow(viewVec[2]*volume.getDimZ(),2));
-                for(long u=-(Math.round(len));u<len;u++){
-                    pixelCoord[0] = uVec[0] * (i - imageCenter) + vVec[0] * (j - imageCenter)+ (u) * viewVec[0]
-                            + volumeCenter[0];
-                    pixelCoord[1] = uVec[1] * (i - imageCenter) + vVec[1] * (j - imageCenter)+ (u) * viewVec[1]
-                            + volumeCenter[1];
-                    pixelCoord[2] = uVec[2] * (i - imageCenter) + vVec[2] * (j - imageCenter)+ (u) * viewVec[2]
-                            + volumeCenter[2];
-                    int val2=getVoxel(pixelCoord);
-                    if(val2>val){
-                        val=val2;
+        
+        for (int j = 0; j < imageHeight; j++) {
+            
+            double pixelCoordXStart = uVec[0] * (-1 - imageCenter) + vVec[0] * (j - imageCenter);
+            double pixelCoordYStart = uVec[1] * (-1 - imageCenter) + vVec[1] * (j - imageCenter);
+            double pixelCoordZStart = uVec[2] * (-1 - imageCenter) + vVec[2] * (j - imageCenter);
+            
+            for (int i = 0; i < imageWidth; i++) {
+                
+                int val = 0;
+                
+                pixelCoordXStart += uVec[0];
+                pixelCoordYStart += uVec[1];
+                pixelCoordZStart += uVec[2];
+                
+                long range = Math.round(len);
+                
+                pixelCoord[0] = pixelCoordXStart - (range + 1) * viewVec[0] + volumeCenter[0];
+                pixelCoord[1] = pixelCoordYStart - (range + 1) * viewVec[1] + volumeCenter[1];
+                pixelCoord[2] = pixelCoordZStart - (range + 1) * viewVec[2] + volumeCenter[2];
+                
+                for(long u = - range; u < range; u++){
+                    pixelCoord[0] += viewVec[0];
+                    pixelCoord[1] += viewVec[1];
+                    pixelCoord[2] += viewVec[2];
+                    
+                    int val2 = getVoxel(pixelCoord);
+                    if(val2 > val){
+                        val = val2;
                     }
                     
                 }
                 
                 // Map the intensity to a grey value by linear scaling
-                voxelColor.r = val/max;
+                voxelColor.r = val / max;
                 voxelColor.g = voxelColor.r;
                 voxelColor.b = voxelColor.r;
                 voxelColor.a = val > 0 ? 1.0 : 0.0;  // this makes intensity 0 completely transparent and the rest opaque
@@ -228,7 +252,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         }
 
     }
-
 
     private void drawBoundingBox(GL2 gl) {
         gl.glPushAttrib(GL2.GL_CURRENT_BIT);
@@ -303,10 +326,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
         long startTime = System.currentTimeMillis();
         
-        if(Method_Implemented=="Slicer"){
+        if("Slicer".equals(Method_Implemented)){
             slicer(viewMatrix);
         }
-        else if(Method_Implemented=="MIP"){
+        else if("MIP".equals(Method_Implemented)){
             mip(viewMatrix);
         }
             
