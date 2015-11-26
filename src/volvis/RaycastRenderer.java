@@ -84,17 +84,51 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
     short getVoxel(double[] coord) {
 
-        if (coord[0] < 0 || coord[0] > volume.getDimX() || coord[1] < 0 || coord[1] > volume.getDimY()
-                || coord[2] < 0 || coord[2] > volume.getDimZ()) {
-            return 0;
-        }
-
+        
         int x = (int) Math.floor(coord[0]);
         int y = (int) Math.floor(coord[1]);
         int z = (int) Math.floor(coord[2]);
-
-        return volume.getVoxel(x, y, z);
+        
+        if (coord[0] < 0 || coord[0] >= volume.getDimX() - 1 || coord[1] < 0 || coord[1] >= volume.getDimY() - 1
+                || coord[2] < 0 || coord[2] >= volume.getDimZ() - 1) {
+            return 0;
+        }
+        
+        // add tri-linear interpolation
+        
+        int val0 = volume.getVoxel(x, y, z);
+        int val1 = volume.getVoxel(x + 1, y, z);
+        
+        int val2 = volume.getVoxel(x, y + 1, z);
+        int val3 = volume.getVoxel(x + 1, y + 1, z);
+        
+        int val4 = volume.getVoxel(x, y, z + 1);
+        int val5 = volume.getVoxel(x + 1, y, z + 1);
+        
+        int val6 = volume.getVoxel(x, y + 1, z + 1);
+        int val7 = volume.getVoxel(x + 1, y + 1, z + 1);
+        
+        double alpha = coord[0] - x;
+        double beta = coord[1] - y;
+        double gamma = coord[2] - z;
+        
+        double val01 = alpha * val1 + (1 - alpha) * val0;
+        double val23 = alpha * val3 + (1 - alpha) * val2;
+        double val45 = alpha * val5 + (1 - alpha) * val4;
+        double val67 = alpha * val7 + (1 - alpha) * val6;
+        
+        double val0123 = beta * val23 + (1 - beta) * val01;
+        double val4567 = beta * val67 + (1 - beta) * val45;
+        
+        double finalVal = gamma * val4567 + (1 - gamma) * val0123;
+        
+        return (short)Math.round(finalVal);
     }
+    
+//    final private double linearInterpolate(double val0, double val1, double alpha) {
+//        
+//        return alpha * val1 + (1 - alpha) * val0;
+//    }
 
 
     void slicer(double[] viewMatrix) {
