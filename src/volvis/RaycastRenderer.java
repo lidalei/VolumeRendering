@@ -285,9 +285,11 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         VectorMath.setVector(volumeCenter, volumeDimX / 2, volumeDimY / 2, volumeDimZ / 2);
 
         // sample on a plane through the origin of the volume data
-        TFColor voxelColor = new TFColor(0, 0, 0, 0);
+        TFColor voxelColor = new TFColor(0, 0, 0, 1);
         
         double len = Math.sqrt(Math.pow(viewVec[0] * volumeDimX,2)+Math.pow(viewVec[1] * volumeDimY,2)+Math.pow(viewVec[2] * volumeDimZ,2));
+        
+        long range = Math.round(len) >> 1;
         
         for (int j = 0; j < imageHeight; j++) {
             
@@ -300,9 +302,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 pixelCoordXStart += uVec[0];
                 pixelCoordYStart += uVec[1];
                 pixelCoordZStart += uVec[2];
-                
-                long range = Math.round(len);
-                
+                                
                 pixelCoord[0] = pixelCoordXStart - (range + 1) * viewVec[0] + volumeCenter[0];
                 pixelCoord[1] = pixelCoordYStart - (range + 1) * viewVec[1] + volumeCenter[1];
                 pixelCoord[2] = pixelCoordZStart - (range + 1) * viewVec[2] + volumeCenter[2];
@@ -322,8 +322,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                     pixelColor.r = (1 - voxelColor.a) * pixelColor.r + voxelColor.a * voxelColor.r;
                     pixelColor.g = (1 - voxelColor.a) * pixelColor.g + voxelColor.a * voxelColor.g;
                     pixelColor.b = (1 - voxelColor.a) * pixelColor.b + voxelColor.a * voxelColor.b;
+                    pixelColor.a = (1 - voxelColor.a) * pixelColor.a;
                 }
                
+                pixelColor.a = 1 - pixelColor.a;
                 
                 // BufferedImage expects a pixel color packed as ARGB in an int
                 int c_alpha = pixelColor.a <= 1.0 ? (int) Math.floor(pixelColor.a * 255) : 255;
