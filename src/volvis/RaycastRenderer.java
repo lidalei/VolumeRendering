@@ -327,7 +327,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         
         int step = 1;
         if(interactiveMode == true) {
-            step = 2;
+            step = 3;
         }
         
         for (int j = 0; j < imageHeight; j ++) {
@@ -351,9 +351,9 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 
                 for(long u = - range; u < range; u += step){
                     
-                    pixelCoord[0] += viewVec[0];
-                    pixelCoord[1] += viewVec[1];
-                    pixelCoord[2] += viewVec[2];
+                    pixelCoord[0] += step * viewVec[0];
+                    pixelCoord[1] += step * viewVec[1];
+                    pixelCoord[2] += step * viewVec[2];
                     
                     // Map the intensity to a color value by linear scaling
                     voxelColor = tFunc.getColor(getVoxel(pixelCoord));
