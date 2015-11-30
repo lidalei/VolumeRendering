@@ -324,7 +324,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         VectorMath.setVector(volumeCenter, volumeDimX / 2, volumeDimY / 2, volumeDimZ / 2);
 
         // sample on a plane through the origin of the volume data
-        TFColor voxelColor = new TFColor(0, 0, 0, 1);
+        TFColor voxelColor = new TFColor();
         
         double len = Math.sqrt(Math.pow(viewVec[0] * volumeDimX,2)+Math.pow(viewVec[1] * volumeDimY,2)+Math.pow(viewVec[2] * volumeDimZ,2));
         
@@ -351,7 +351,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 pixelCoord[1] = pixelCoordYStart - (range + 1) * viewVec[1] + volumeCenter[1];
                 pixelCoord[2] = pixelCoordZStart - (range + 1) * viewVec[2] + volumeCenter[2];
                 
-                TFColor pixelColor = new TFColor();
+                TFColor pixelColor = new TFColor(0, 0, 0, 1);
                 
                 
                 for(long u = - range; u < range; u += step){
