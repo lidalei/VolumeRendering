@@ -291,7 +291,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     }
 
     
-    void compositing(double[] viewMatrix, boolean interactiveMode) {
+    void compositing(double[] viewMatrix) {
         
         int imageHeight = image.getHeight();
         int imageWidth = image.getWidth();
@@ -501,7 +501,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             mip(viewMatrix);
         }
         else if("Compositing".equals(Method_Implemented)) {
-            compositing(viewMatrix, interactiveMode);
+            compositing(viewMatrix);
         }
         else if("Transfer2D".equals(Method_Implemented)) {
             
