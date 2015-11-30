@@ -286,7 +286,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     }
 
     
-    void compositing(double[] viewMatrix) {
+    void compositing(double[] viewMatrix, boolean interactiveMode) {
         
         int imageHeight = image.getHeight();
         int imageWidth = image.getWidth();
@@ -325,7 +325,12 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         
         long range = Math.round(len) >> 1;
         
-        for (int j = 0; j < imageHeight; j++) {
+        int step = 1;
+        if(interactiveMode == true) {
+            step = 2;
+        }
+        
+        for (int j = 0; j < imageHeight; j ++) {
             
             double pixelCoordXStart = uVec[0] * (-1 - imageCenter) + vVec[0] * (j - imageCenter);
             double pixelCoordYStart = uVec[1] * (-1 - imageCenter) + vVec[1] * (j - imageCenter);
@@ -344,7 +349,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 TFColor pixelColor = new TFColor();
                 
                 
-                for(long u = - range; u < range; u++){
+                for(long u = - range; u < range; u += step){
                     
                     pixelCoord[0] += viewVec[0];
                     pixelCoord[1] += viewVec[1];
@@ -491,7 +496,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             mip(viewMatrix);
         }
         else if("Compositing".equals(Method_Implemented)) {
-            compositing(viewMatrix);
+            compositing(viewMatrix, interactiveMode);
+        }
+        else if("Transfer2D".equals(Method_Implemented)) {
+            
         }
             
         
