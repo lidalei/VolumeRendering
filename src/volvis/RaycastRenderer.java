@@ -234,6 +234,11 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         double len = Math.sqrt(Math.pow(viewVec[0] * volumeDimX,2)+Math.pow(viewVec[1] * volumeDimY,2)+Math.pow(viewVec[2] * volumeDimZ,2));
         long range = Math.round(len) >> 1;
         
+        int step = 1;
+        if(interactiveMode == true) {
+            step = 3;
+        }
+        
         for (int j = 0; j < imageHeight; j++) {
             
             double pixelCoordXStart = uVec[0] * (-1 - imageCenter) + vVec[0] * (j - imageCenter);
@@ -252,10 +257,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 pixelCoord[1] = pixelCoordYStart - (range + 1) * viewVec[1] + volumeCenter[1];
                 pixelCoord[2] = pixelCoordZStart - (range + 1) * viewVec[2] + volumeCenter[2];
                 
-                for(long u = - range; u < range; u++){
-                    pixelCoord[0] += viewVec[0];
-                    pixelCoord[1] += viewVec[1];
-                    pixelCoord[2] += viewVec[2];
+                for(long u = - range; u < range; u+=step){
+                    pixelCoord[0] += viewVec[0] * step;
+                    pixelCoord[1] += viewVec[1] * step;
+                    pixelCoord[2] += viewVec[2] * step;
                     
                     int val2 = getVoxel(pixelCoord);
                     if(val2 > val){
