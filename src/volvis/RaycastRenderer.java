@@ -266,11 +266,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
         // sample on a plane through the origin of the volume data
         double max = volume.getMaximum();
-        TFColor voxelColor = new TFColor();
-
-        double len = Math.sqrt(Math.pow(viewVec[0] * volumeDimX,2)+Math.pow(viewVec[1] * volumeDimY,2)+Math.pow(viewVec[2] * volumeDimZ,2));
-        long range = Math.round(len) >> 1;
         
+        // interactive mode
         int step = 1;
         if(interactiveMode == true) {
             step = 3;
@@ -280,6 +277,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         double YStep = viewVec[1] * step;
         double ZStep = viewVec[2] * step;
         
+        TFColor pixelColor = new TFColor();
+        
         for (int j = 0; j < imageHeight; j++) {
             
             double voxelCoordXStart = uVec[0] * (-1 - imageCenter) + vVec[0] * (j - imageCenter) + volumeCenter[0];
@@ -287,8 +286,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             double voxelCoordZStart = uVec[2] * (-1 - imageCenter) + vVec[2] * (j - imageCenter) + volumeCenter[2];
             
             for (int i = 0; i < imageWidth; i++) {
-                
-                int val = 0;
                 
                 voxelCoordXStart += uVec[0];
                 voxelCoordYStart += uVec[1];
@@ -327,12 +324,15 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
                 voxelCoord[2] = voxelCoordZStart + (start - step) * viewVec[2];
                 
+                int val = 0;
+                
                 for(long u = start; u < end; u += step){
                     voxelCoord[0] += XStep;
                     voxelCoord[1] += YStep;
                     voxelCoord[2] += ZStep;
                     
                     int val2 = getVoxel(voxelCoord);
+                    
                     if(val2 > val){
                         val = val2;
                     }
@@ -340,21 +340,18 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 }
                 
                 // Map the intensity to a grey value by linear scaling
-                voxelColor.r = val / max;
-                voxelColor.g = voxelColor.r;
-                voxelColor.b = voxelColor.r;
-                voxelColor.a = val > 0 ? 1.0 : 0.0;  // this makes intensity 0 completely transparent and the rest opaque
-                // Alternatively, apply the transfer function to obtain a color
-                // voxelColor = tFunc.getColor(val);
-                
+                pixelColor.r = val / max;
+                pixelColor.g = pixelColor.r;
+                pixelColor.b = pixelColor.r;
+                pixelColor.a = val > 0 ? 1.0 : 0.0;  // this makes intensity 0 completely transparent and the rest opaque
                 
                 // BufferedImage expects a pixel color packed as ARGB in an int
-                int c_alpha = voxelColor.a <= 1.0 ? (int) Math.floor(voxelColor.a * 255) : 255;
-                int c_red = voxelColor.r <= 1.0 ? (int) Math.floor(voxelColor.r * 255) : 255;
-                int c_green = voxelColor.g <= 1.0 ? (int) Math.floor(voxelColor.g * 255) : 255;
-                int c_blue = voxelColor.b <= 1.0 ? (int) Math.floor(voxelColor.b * 255) : 255;
-                int pixelColor = (c_alpha << 24) | (c_red << 16) | (c_green << 8) | c_blue;
-                image.setRGB(i, j, pixelColor);
+                int c_alpha = pixelColor.a <= 1.0 ? (int) Math.floor(pixelColor.a * 255) : 255;
+                int c_red = pixelColor.r <= 1.0 ? (int) Math.floor(pixelColor.r * 255) : 255;
+                int c_green = pixelColor.g <= 1.0 ? (int) Math.floor(pixelColor.g * 255) : 255;
+                int c_blue = pixelColor.b <= 1.0 ? (int) Math.floor(pixelColor.b * 255) : 255;
+                int finalPixelColor = (c_alpha << 24) | (c_red << 16) | (c_green << 8) | c_blue;
+                image.setRGB(i, j, finalPixelColor);
             }
         }
 
@@ -392,14 +389,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         double[] voxelCoord = new double[3];
         double[] volumeCenter = new double[3];
         VectorMath.setVector(volumeCenter, volumeDimX / 2, volumeDimY / 2, volumeDimZ / 2);
-
-        // sample on a plane through the origin of the volume data
-        TFColor voxelColor = new TFColor();
         
-        double len = Math.sqrt(Math.pow(viewVec[0] * volumeDimX,2)+Math.pow(viewVec[1] * volumeDimY,2)+Math.pow(viewVec[2] * volumeDimZ,2));
-        
-        long range = Math.round(len) >> 1;
-        
+        // interactive mode
         int step = 1;
         if(interactiveMode == true) {
             step = 3;
@@ -409,6 +400,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         double YStep = viewVec[1] * step;
         double ZStep = viewVec[2] * step;
         
+        // reusable
+        TFColor voxelColor = new TFColor();
         
         for (int j = 0; j < imageHeight; j ++) {
             
@@ -456,6 +449,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
                 voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
                 voxelCoord[2] = voxelCoordZStart + (start - step) * viewVec[2];
+                
                 
                 for(long u = start; u < end; u += step){
                     voxelCoord[0] += XStep;
@@ -525,10 +519,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         short voxelIntensity = 0;
         double gradientMag = 0;
         
-        double len = Math.sqrt(Math.pow(viewVec[0] * volumeDimX,2)+Math.pow(viewVec[1] * volumeDimY,2)+Math.pow(viewVec[2] * volumeDimZ,2));
-        
-        long range = Math.round(len) >> 1;
-        
+        // interactive mode
         int step = 1;
         if(interactiveMode == true) {
             step = 3;
@@ -537,6 +528,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         short baseIntensity = tfEditor2D.triangleWidget.baseIntensity;
         double radius = tfEditor2D.triangleWidget.radius;
         // TFColor baseColor = tfEditor2D.triangleWidget.color;
+        
+        double XStep = viewVec[0] * step;
+        double YStep = viewVec[1] * step;
+        double ZStep = viewVec[2] * step;
         
         
         for (int j = 0; j < imageHeight; j ++) {
@@ -547,22 +542,48 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             
             for (int i = 0; i < imageWidth; i++) {
                 
+                TFColor pixelColor = new TFColor(0, 0, 0, 1);
+                
                 voxelCoordXStart += uVec[0];
                 voxelCoordYStart += uVec[1];
                 voxelCoordZStart += uVec[2];
                                 
-                voxelCoord[0] = voxelCoordXStart - (range + 1) * viewVec[0] + volumeCenter[0];
-                voxelCoord[1] = voxelCoordYStart - (range + 1) * viewVec[1] + volumeCenter[1];
-                voxelCoord[2] = voxelCoordZStart - (range + 1) * viewVec[2] + volumeCenter[2];
+                // compute intersections
+                long tXMin = Math.round(-voxelCoordXStart / viewVec[0]);
+                long tXMax = Math.round((volume.getDimX() - voxelCoordXStart) / viewVec[0]);
+                long tYMin = Math.round(-voxelCoordYStart / viewVec[1]);
+                long tYMax = Math.round((volume.getDimY() - voxelCoordYStart) / viewVec[1]);
+                long tZMin = Math.round(-voxelCoordZStart / viewVec[2]);
+                long tZMax = Math.round((volume.getDimZ() - voxelCoordZStart) / viewVec[2]);
+
+                if(tXMin > tXMax) {
+                    tXMin = tXMin ^ tXMax;
+                    tXMax = tXMin ^ tXMax;
+                    tXMin = tXMin ^ tXMax;          
+                }
+
+                if(tYMin > tYMax) {
+                    tYMin = tYMin ^ tYMax;
+                    tYMax = tYMin ^ tYMax;
+                    tYMin = tYMin ^ tYMax;          
+                }
+
+                if(tZMin > tZMax) {
+                    tZMin = tZMin ^ tZMax;
+                    tZMax = tZMin ^ tZMax;
+                    tZMin = tZMin ^ tZMax;          
+                }
+                long start = Math.max(tXMin, Math.max(tYMin, tZMin));
+                long end = Math.min(tXMax, Math.min(tYMax, tZMax));
                 
-                TFColor pixelColor = new TFColor(0, 0, 0, 1);
+                voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
+                voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
+                voxelCoord[2] = voxelCoordZStart + (start - step) * viewVec[2];
                 
-                
-                for(long u = - range; u < range; u += step){
-                    
-                    voxelCoord[0] += step * viewVec[0];
-                    voxelCoord[1] += step * viewVec[1];
-                    voxelCoord[2] += step * viewVec[2];
+                for(long u = start; u < end; u += step){
+                    voxelCoord[0] += XStep;
+                    voxelCoord[1] += YStep;
+                    voxelCoord[2] += ZStep;
                     
                     // get voxel color using 2D transfer function
                     voxelIntensity = getVoxel(voxelCoord);
