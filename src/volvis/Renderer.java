@@ -14,7 +14,7 @@ import util.TFChangeListener;
  * @author michel
  */
 public abstract class Renderer {
-     int winWidth, winHeight;
+    int winWidth, winHeight;
     boolean visible = false;
     boolean interactiveMode = false;
     ArrayList<TFChangeListener> listeners = new ArrayList<TFChangeListener>();
