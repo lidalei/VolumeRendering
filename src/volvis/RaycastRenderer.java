@@ -276,6 +276,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             step = 3;
         }
         
+        double XStep = viewVec[0] * step;
+        double YStep = viewVec[1] * step;
+        double ZStep = viewVec[2] * step;
+        
         for (int j = 0; j < imageHeight; j++) {
             
             double voxelCoordXStart = uVec[0] * (-1 - imageCenter) + vVec[0] * (j - imageCenter) + volumeCenter[0];
@@ -290,14 +294,43 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 voxelCoordYStart += uVec[1];
                 voxelCoordZStart += uVec[2];
                 
-                voxelCoord[0] = voxelCoordXStart - (range + 1) * viewVec[0];
-                voxelCoord[1] = voxelCoordYStart - (range + 1) * viewVec[1];
-                voxelCoord[2] = voxelCoordZStart - (range + 1) * viewVec[2];
                 
-                for(long u = - range; u < range; u+=step){
-                    voxelCoord[0] += viewVec[0] * step;
-                    voxelCoord[1] += viewVec[1] * step;
-                    voxelCoord[2] += viewVec[2] * step;
+                // compute intersections
+                long tXMin = Math.round(-voxelCoordXStart / viewVec[0]);
+                long tXMax = Math.round((volume.getDimX() - voxelCoordXStart) / viewVec[0]);
+                long tYMin = Math.round(-voxelCoordYStart / viewVec[1]);
+                long tYMax = Math.round((volume.getDimY() - voxelCoordYStart) / viewVec[1]);
+                long tZMin = Math.round(-voxelCoordZStart / viewVec[2]);
+                long tZMax = Math.round((volume.getDimZ() - voxelCoordZStart) / viewVec[2]);
+
+                if(tXMin > tXMax) {
+                    tXMin = tXMin ^ tXMax;
+                    tXMax = tXMin ^ tXMax;
+                    tXMin = tXMin ^ tXMax;          
+                }
+
+                if(tYMin > tYMax) {
+                    tYMin = tYMin ^ tYMax;
+                    tYMax = tYMin ^ tYMax;
+                    tYMin = tYMin ^ tYMax;          
+                }
+
+                if(tZMin > tZMax) {
+                    tZMin = tZMin ^ tZMax;
+                    tZMax = tZMin ^ tZMax;
+                    tZMin = tZMin ^ tZMax;          
+                }
+                long start = Math.max(tXMin, Math.max(tYMin, tZMin));
+                long end = Math.min(tXMax, Math.min(tYMax, tZMax));
+                
+                voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
+                voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
+                voxelCoord[2] = voxelCoordZStart + (start - step) * viewVec[2];
+                
+                for(long u = start; u < end; u += step){
+                    voxelCoord[0] += XStep;
+                    voxelCoord[1] += YStep;
+                    voxelCoord[2] += ZStep;
                     
                     int val2 = getVoxel(voxelCoord);
                     if(val2 > val){
@@ -372,6 +405,11 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             step = 3;
         }
         
+        double XStep = viewVec[0] * step;
+        double YStep = viewVec[1] * step;
+        double ZStep = viewVec[2] * step;
+        
+        
         for (int j = 0; j < imageHeight; j ++) {
             
             double voxelCoordXStart = uVec[0] * (-1 - imageCenter) + vVec[0] * (j - imageCenter) + volumeCenter[0];
@@ -380,22 +418,49 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             
             for (int i = 0; i < imageWidth; i++) {
                 
+                TFColor pixelColor = new TFColor(0, 0, 0, 1);
+                
                 voxelCoordXStart += uVec[0];
                 voxelCoordYStart += uVec[1];
                 voxelCoordZStart += uVec[2];
-                                
-                voxelCoord[0] = voxelCoordXStart - (range + 1) * viewVec[0];
-                voxelCoord[1] = voxelCoordYStart - (range + 1) * viewVec[1];
-                voxelCoord[2] = voxelCoordZStart - (range + 1) * viewVec[2];
-                
-                TFColor pixelColor = new TFColor(0, 0, 0, 1);
                 
                 
-                for(long u = - range; u < range; u += step){
-                    
-                    voxelCoord[0] += step * viewVec[0];
-                    voxelCoord[1] += step * viewVec[1];
-                    voxelCoord[2] += step * viewVec[2];
+                // compute intersections
+                long tXMin = Math.round(-voxelCoordXStart / viewVec[0]);
+                long tXMax = Math.round((volume.getDimX() - voxelCoordXStart) / viewVec[0]);
+                long tYMin = Math.round(-voxelCoordYStart / viewVec[1]);
+                long tYMax = Math.round((volume.getDimY() - voxelCoordYStart) / viewVec[1]);
+                long tZMin = Math.round(-voxelCoordZStart / viewVec[2]);
+                long tZMax = Math.round((volume.getDimZ() - voxelCoordZStart) / viewVec[2]);
+
+                if(tXMin > tXMax) {
+                    tXMin = tXMin ^ tXMax;
+                    tXMax = tXMin ^ tXMax;
+                    tXMin = tXMin ^ tXMax;          
+                }
+
+                if(tYMin > tYMax) {
+                    tYMin = tYMin ^ tYMax;
+                    tYMax = tYMin ^ tYMax;
+                    tYMin = tYMin ^ tYMax;          
+                }
+
+                if(tZMin > tZMax) {
+                    tZMin = tZMin ^ tZMax;
+                    tZMax = tZMin ^ tZMax;
+                    tZMin = tZMin ^ tZMax;          
+                }
+                long start = Math.max(tXMin, Math.max(tYMin, tZMin));
+                long end = Math.min(tXMax, Math.min(tYMax, tZMax));
+                
+                voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
+                voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
+                voxelCoord[2] = voxelCoordZStart + (start - step) * viewVec[2];
+                
+                for(long u = start; u < end; u += step){
+                    voxelCoord[0] += XStep;
+                    voxelCoord[1] += YStep;
+                    voxelCoord[2] += ZStep;
                     
                     // Tansfer function
                     voxelColor = tFunc.getColor(getVoxel(voxelCoord));
