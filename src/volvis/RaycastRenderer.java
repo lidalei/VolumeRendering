@@ -27,6 +27,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     private Volume volume = null;
     private GradientVolume gradients = null;
     public String Method_Implemented = "Slicer";
+    public boolean shading = false;
     RaycastRendererPanel panel;
     TransferFunction tFunc;
     TransferFunctionEditor tfEditor;
@@ -272,7 +273,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         if(interactiveMode == true) {
             step = 3;
         }
-        
+
         double XStep = viewVec[0] * step;
         double YStep = viewVec[1] * step;
         double ZStep = viewVec[2] * step;
@@ -284,6 +285,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             double voxelCoordXStart = uVec[0] * (-1 - imageCenter) + vVec[0] * (j - imageCenter) + volumeCenter[0];
             double voxelCoordYStart = uVec[1] * (-1 - imageCenter) + vVec[1] * (j - imageCenter) + volumeCenter[1];
             double voxelCoordZStart = uVec[2] * (-1 - imageCenter) + vVec[2] * (j - imageCenter) + volumeCenter[2];
+            
             
             for (int i = 0; i < imageWidth; i++) {
                 
@@ -639,6 +641,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         }
     }
     
+
     
     private void drawBoundingBox(GL2 gl) {
         gl.glPushAttrib(GL2.GL_CURRENT_BIT);
@@ -725,7 +728,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         else if("Transfer2D".equals(Method_Implemented)) {
             TwoDTransfer(viewMatrix);
         }
-            
+        
         
         long endTime = System.currentTimeMillis();
         double runningTime = (endTime - startTime);
