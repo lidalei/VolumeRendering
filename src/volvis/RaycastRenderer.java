@@ -299,7 +299,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 long tYMax = Math.round((volume.getDimY() - voxelCoordYStart) / viewVec[1]);
                 long tZMin = Math.round(-voxelCoordZStart / viewVec[2]);
                 long tZMax = Math.round((volume.getDimZ() - voxelCoordZStart) / viewVec[2]);
-
+                
+                //swap value if min larger than max
                 if(tXMin > tXMax) {
                     tXMin = tXMin + tXMax;
                     tXMax = tXMin - tXMax;
