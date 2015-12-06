@@ -134,21 +134,25 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
 
     private void mipButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mipButtonActionPerformed
         this.renderer.Method_Implemented = "MIP";
+        this.renderer.changed();
         // JOptionPane.showMessageDialog(this, renderer.Method_Implemented);
 
     }//GEN-LAST:event_mipButtonActionPerformed
 
     private void slicerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_slicerButtonActionPerformed
         this.renderer.Method_Implemented = "Slicer";
+        this.renderer.changed();
         // JOptionPane.showMessageDialog(this, renderer.Method_Implemented);
     }//GEN-LAST:event_slicerButtonActionPerformed
 
     private void compositingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compositingButtonActionPerformed
         this.renderer.Method_Implemented = "Compositing";
+        this.renderer.changed();
     }//GEN-LAST:event_compositingButtonActionPerformed
 
     private void tf2dButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf2dButtonActionPerformed
         this.renderer.Method_Implemented = "Transfer2D";
+        this.renderer.changed();
     }//GEN-LAST:event_tf2dButtonActionPerformed
 
     private void shadingCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shadingCheckboxActionPerformed
@@ -157,7 +161,8 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
         } else {
             this.renderer.shading = false;
         }
-        JOptionPane.showMessageDialog(this, renderer.shading);
+        this.renderer.changed();
+        // JOptionPane.showMessageDialog(this, renderer.shading);
     }//GEN-LAST:event_shadingCheckboxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
