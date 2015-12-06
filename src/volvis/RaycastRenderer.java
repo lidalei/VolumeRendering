@@ -81,7 +81,13 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     public TransferFunctionEditor getTFPanel() {
         return tfEditor;
     }
-     
+    
+    /*
+    
+    get voxel intensity - using tri-linear interpolation 
+    
+    */
+    
 
     short getVoxel(double[] coord) {
 
@@ -126,6 +132,64 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         return (short)Math.round(finalVal);
     }
     
+    /*
+    
+    get voxel gradient
+    
+    */
+
+    
+    VoxelGradient getVoxelGradient(double[] coord) {
+        
+        VoxelGradient voxelGradient = new VoxelGradient();
+        
+        int x = (int) Math.floor(coord[0]);
+        int y = (int) Math.floor(coord[1]);
+        int z = (int) Math.floor(coord[2]);
+        
+        if (coord[0] < 0 || coord[0] >= volume.getDimX() - 1 || coord[1] < 0 || coord[1] >= volume.getDimY() - 1
+                || coord[2] < 0 || coord[2] >= volume.getDimZ() - 1) {
+            return voxelGradient;
+        }
+        
+        // add tri-linear interpolation
+        
+        VoxelGradient val0 = gradients.getGradient(x, y, z);
+        VoxelGradient val1 = gradients.getGradient(x + 1, y, z);
+        
+        VoxelGradient val2 = gradients.getGradient(x, y + 1, z);
+        VoxelGradient val3 = gradients.getGradient(x + 1, y + 1, z);
+        
+        VoxelGradient val4 = gradients.getGradient(x, y, z + 1);
+        VoxelGradient val5 = gradients.getGradient(x + 1, y, z + 1);
+        
+        VoxelGradient val6 = gradients.getGradient(x, y + 1, z + 1);
+        VoxelGradient val7 = gradients.getGradient(x + 1, y + 1, z + 1);
+        
+        float alpha = (float) (coord[0] - x);
+        float beta = (float) (coord[1] - y);
+        float gamma = (float) (coord[2] - z);
+        // four linear interpolation
+        VoxelGradient val01 = VoxelGradient.voxelGradientAddition(VoxelGradient.scalarMultiplication(alpha, val1), VoxelGradient.scalarMultiplication(1 - alpha, val0));
+        VoxelGradient val23 = VoxelGradient.voxelGradientAddition(VoxelGradient.scalarMultiplication(alpha, val3), VoxelGradient.scalarMultiplication(1 - alpha, val2));
+        VoxelGradient val45 = VoxelGradient.voxelGradientAddition(VoxelGradient.scalarMultiplication(alpha, val5), VoxelGradient.scalarMultiplication(1 - alpha, val4));;
+        VoxelGradient val67 = VoxelGradient.voxelGradientAddition(VoxelGradient.scalarMultiplication(alpha, val7), VoxelGradient.scalarMultiplication(1 - alpha, val6));;
+        // two bi-linear interpolation
+        VoxelGradient val0123 = VoxelGradient.voxelGradientAddition(VoxelGradient.scalarMultiplication(beta, val23), VoxelGradient.scalarMultiplication(1 - beta, val01));
+        VoxelGradient val4567 = VoxelGradient.voxelGradientAddition(VoxelGradient.scalarMultiplication(beta, val67), VoxelGradient.scalarMultiplication(1 - beta, val45));
+        // one tri-linear interpolation
+        VoxelGradient finalVal = VoxelGradient.voxelGradientAddition(VoxelGradient.scalarMultiplication(beta, val4567), VoxelGradient.scalarMultiplication(1 - gamma, val0123));
+        
+        return finalVal;
+    }    
+    
+    /*
+    
+     get voxel gradient magnitude
+    
+    */
+    
+    
     double getVoxelGradientMag(double[] coord) {
         
         int x = (int) Math.floor(coord[0]);
@@ -168,7 +232,13 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         return finalVal;
     }
     
-
+    /*
+    
+    slicer redering
+    
+    */
+    
+    
     void slicer(double[] viewMatrix) {
 
         // clear image
@@ -231,6 +301,12 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
     }
 
+    /*
+    
+    maximum intensity projection redering
+    
+    */
+    
     void mip(double[] viewMatrix) {
 
         int imageHeight = image.getHeight();
@@ -320,16 +396,17 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                     tZMax = tZMin - tZMax;
                     tZMin = tZMin - tZMax;          
                 }
-                long start = Math.max(tXMin, Math.max(tYMin, tZMin));
-                long end = Math.min(tXMax, Math.min(tYMax, tZMax));
-                
-                voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
-                voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
-                voxelCoord[2] = voxelCoordZStart + (start - step) * viewVec[2];
                 
                 int val = 0;
                 
+                long start = Math.max(tXMin, Math.max(tYMin, tZMin));
+                long end = Math.min(tXMax, Math.min(tYMax, tZMax));
+                // ray intersects with volume
                 if(start < end) {
+                    voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
+                    voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
+                    voxelCoord[2] = voxelCoordZStart + (start - step) * viewVec[2];
+                
                     for(long u = start; u < end; u += step){
                        voxelCoord[0] += XStep;
                        voxelCoord[1] += YStep;
@@ -362,6 +439,11 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
     }
 
+    /*
+    
+    compositing rendering using 1D function
+    
+    */
     
     void compositing(double[] viewMatrix) {
         
@@ -450,7 +532,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 }
                 long start = Math.max(tXMin, Math.max(tYMin, tZMin));
                 long end = Math.min(tXMax, Math.min(tYMax, tZMax));
-                
+                // ray intersects with volume
                 if(start < end) {
                     voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
                     voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
@@ -490,7 +572,11 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
     }
     
+    /*
     
+    2D transfer function rendering
+    
+    */
     
     void TwoDTransfer(double[] viewMatrix) {
         
@@ -587,7 +673,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 }
                 long start = Math.max(tXMin, Math.max(tYMin, tZMin));
                 long end = Math.min(tXMax, Math.min(tYMax, tZMax));
-                
+                // ray intersects with volume
                 if(start < end) {
                     voxelCoord[0] = voxelCoordXStart + (start - step) * viewVec[0];
                     voxelCoord[1] = voxelCoordYStart + (start - step) * viewVec[1];
@@ -600,7 +686,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
                         // get voxel color using 2D transfer function
                         voxelIntensity = getVoxel(voxelCoord);
-                        gradientMag = (float)getVoxelGradientMag(voxelCoord);
+                        // gradientMag = (float)getVoxelGradientMag(voxelCoord);
+                        
+                        gradientMag = getVoxelGradient(voxelCoord).mag;
+                        
                         voxelColor.r = baseColor.r;
                         voxelColor.g = baseColor.g;
                         voxelColor.b = baseColor.b;
