@@ -26,24 +26,13 @@ public class VoxelGradient {
     
     // scalar multiplication a gradient
     public static VoxelGradient scalarMultiplication(float lambda, VoxelGradient g) {
-        VoxelGradient g2 = new VoxelGradient();
-        g2.x = lambda * g.x;
-        g2.y = lambda * g.y;
-        g2.z = lambda * g.z;
-        g2.mag = lambda * g.mag;
-        return g2;
-        
+        return new VoxelGradient(lambda * g.x, lambda * g.y, lambda * g.z);
     }
     
     
     // add two voxel graident
     public static VoxelGradient voxelGradientAddition(VoxelGradient g1, VoxelGradient g2) {
-        VoxelGradient g3 = new VoxelGradient();
-        g3.x = g1.x + g2.x;
-        g3.y = g1.y + g2.y;
-        g3.z = g1.z + g2.z;
-        g3.mag = (float)Math.sqrt(g1.mag * g1.mag + g2.mag * g2.mag + 2 * (g1.x * g2.x + g1.y * g2.y + g1.z * g2.z));
-        return g3;
+        return new VoxelGradient(g1.x + g2.x, g1.y + g2.y, g1.z + g2.z);
     }
     
 }

@@ -133,25 +133,25 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void mipButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mipButtonActionPerformed
-        this.renderer.Method_Implemented = "MIP";
+        this.renderer.Rendering_Method = "MIP";
         this.renderer.changed();
         // JOptionPane.showMessageDialog(this, renderer.Method_Implemented);
 
     }//GEN-LAST:event_mipButtonActionPerformed
 
     private void slicerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_slicerButtonActionPerformed
-        this.renderer.Method_Implemented = "Slicer";
+        this.renderer.Rendering_Method = "Slicer";
         this.renderer.changed();
         // JOptionPane.showMessageDialog(this, renderer.Method_Implemented);
     }//GEN-LAST:event_slicerButtonActionPerformed
 
     private void compositingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compositingButtonActionPerformed
-        this.renderer.Method_Implemented = "Compositing";
+        this.renderer.Rendering_Method = "Compositing";
         this.renderer.changed();
     }//GEN-LAST:event_compositingButtonActionPerformed
 
     private void tf2dButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf2dButtonActionPerformed
-        this.renderer.Method_Implemented = "Transfer2D";
+        this.renderer.Rendering_Method = "Transfer2D";
         this.renderer.changed();
     }//GEN-LAST:event_tf2dButtonActionPerformed
 

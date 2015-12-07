@@ -281,8 +281,6 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
         } catch (NumberFormatException e) {
             triangleWidget.color.a = 0.2;
         }
-        // set triangleWidget in tfView color.a to avoid recover to default
-        this.tfView.ed.triangleWidget.color.a = triangleWidget.color.a;
         setSelectedInfo();
         changed();
     }//GEN-LAST:event_opacityLabelActionPerformed

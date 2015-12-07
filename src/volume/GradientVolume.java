@@ -113,17 +113,11 @@ public class GradientVolume {
                     }
 
                     data[x + dimX*(y + dimY * z)] = new VoxelGradient(gx, gy, gz);
-                }
+                } // end DimZ
                 
-                
-            }
+            } // end DimY
             
-            
-            
-        }
-        
-        
-        
+        } // end DimX
         
         // for (int i = 0; i < data.length; i++) {            
             
