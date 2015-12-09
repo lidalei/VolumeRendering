@@ -157,7 +157,6 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
 
         jLabel6.setText("Color");
 
-        colorButton.setBounds(new java.awt.Rectangle(0, 0, 75, 29));
         colorButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 colorButtonActionPerformed(evt);
@@ -177,10 +176,20 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
         intensityLabel.setEditable(false);
         intensityLabel.setText("jTextField1");
         intensityLabel.setMinimumSize(new java.awt.Dimension(84, 28));
+        intensityLabel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                intensityLabelActionPerformed(evt);
+            }
+        });
 
         radiusLabel.setEditable(false);
         radiusLabel.setText("jTextField3");
         radiusLabel.setMinimumSize(new java.awt.Dimension(84, 28));
+        radiusLabel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radiusLabelActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -207,8 +216,8 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
                                 .addGap(6, 6, 6)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(opacityLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(intensityLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(colorButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(intensityLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(colorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
@@ -290,6 +299,28 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
         setSelectedInfo();
         changed();
     }//GEN-LAST:event_opacityLabelActionPerformed
+
+    private void intensityLabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_intensityLabelActionPerformed
+        // TODO add your handling code here:
+//        try {
+//            short value = Short.parseShort(intensityLabel.getText());
+//            if (value < 0) {
+//                value = 0;
+//            } 
+//            if (value > maxIntensity) {
+//                value = maxIntensity;
+//            }
+//            triangleWidget.baseIntensity = value;
+//        } catch (NumberFormatException e) {
+//            triangleWidget.baseIntensity = (short) (maxIntensity >> 1);
+//        }
+//        setSelectedInfo();
+//        changed();
+    }//GEN-LAST:event_intensityLabelActionPerformed
+
+    private void radiusLabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radiusLabelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_radiusLabelActionPerformed
 
     public class TriangleWidget {
 

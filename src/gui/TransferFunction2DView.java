@@ -23,7 +23,7 @@ import java.awt.geom.Rectangle2D;
 public class TransferFunction2DView extends javax.swing.JPanel {
 
     TransferFunction2DEditor ed;
-    private final int DOTSIZE = 8;
+    private final int DOTSIZE = 6;
     public Ellipse2D.Double baseControlPoint, radiusControlPoint;    
     boolean selectedBaseControlPoint, selectedRadiusControlPoint;
     
@@ -95,9 +95,9 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         // extend widget
         int lowYPos = h - (int) (ed.triangleWidget.lowGradientMagnitude / ed.maxGradientMagnitude * ed.ybins * binHeight);
         int upYPos = h - (int) (ed.triangleWidget.upGradientMagnitude / ed.maxGradientMagnitude * ed.ybins * binHeight);
-        g2.setColor(Color.red);
-        lowControlPoint = new Ellipse2D.Double(xpos - 10 - DOTSIZE / 2, lowYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
-        upControlPoint = new Ellipse2D.Double(xpos - 10 - DOTSIZE / 2, upYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
+        g2.setColor(Color.green);
+        lowControlPoint = new Ellipse2D.Double(lowYPos == h ? xpos - 10 - DOTSIZE / 2 : xpos - DOTSIZE / 2, lowYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
+        upControlPoint = new Ellipse2D.Double(xpos - DOTSIZE / 2, upYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
         g2.fill(lowControlPoint);
         g2.fill(upControlPoint);
         // lowControlPoint
@@ -196,7 +196,7 @@ public class TransferFunction2DView extends javax.swing.JPanel {
                         ed.triangleWidget.lowGradientMagnitude = newLowGradientMagnitude;
                     }
                     
-                    System.out.println(ed.triangleWidget.lowGradientMagnitude);
+//                    System.out.println(ed.triangleWidget.lowGradientMagnitude);
                 }
                 else if(selectedUpControlPoint) {
                     double newUpGradientMagnitude = ed.maxGradientMagnitude * (h - dragEnd.y) / h;
@@ -207,7 +207,7 @@ public class TransferFunction2DView extends javax.swing.JPanel {
                     else {
                         ed.triangleWidget.upGradientMagnitude = newUpGradientMagnitude;
                     }
-                    System.out.println(ed.triangleWidget.upGradientMagnitude);
+//                    System.out.println(ed.triangleWidget.upGradientMagnitude);
                 }
                 
                 ed.setSelectedInfo();
