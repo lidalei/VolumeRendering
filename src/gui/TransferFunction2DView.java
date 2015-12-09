@@ -24,9 +24,12 @@ public class TransferFunction2DView extends javax.swing.JPanel {
 
     TransferFunction2DEditor ed;
     private final int DOTSIZE = 8;
-    public Ellipse2D.Double baseControlPoint, radiusControlPoint;
+    public Ellipse2D.Double baseControlPoint, radiusControlPoint;    
     boolean selectedBaseControlPoint, selectedRadiusControlPoint;
-    private double maxGradientMagnitude;
+    
+    // extend widget
+    public Ellipse2D.Double lowControlPoint, upControlPoint;
+    boolean selectedLowControlPoint, selectedUpControlPoint;
     
     /**
      * Creates new form TransferFunction2DView
@@ -38,6 +41,11 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         this.ed = ed;
         selectedBaseControlPoint = false;
         selectedRadiusControlPoint = false;
+        
+        // extend widget
+        selectedLowControlPoint = false;
+        selectedUpControlPoint = false;
+        
         addMouseMotionListener(new TriangleWidgetHandler());
         addMouseListener(new SelectionHandler());
     }
@@ -52,34 +60,54 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         g2.setColor(Color.white);
         g2.fillRect(0, 0, w, h);
         
-        maxGradientMagnitude = ed.histogram[0];
+        double maxHistoMagnitude = ed.histogram[0];
         for (int i = 0; i < ed.histogram.length; i++) {
-            maxGradientMagnitude = ed.histogram[i] > maxGradientMagnitude ? ed.histogram[i] : maxGradientMagnitude;
+            if(ed.histogram[i] > maxHistoMagnitude) {
+                maxHistoMagnitude = ed.histogram[i];
+            }
         }
         
         double binWidth = (double) w / (double) ed.xbins;
         double binHeight = (double) h / (double) ed.ybins;
-        maxGradientMagnitude = Math.log(maxGradientMagnitude);
+        maxHistoMagnitude = Math.log(maxHistoMagnitude);
         
         for (int y = 0; y < ed.ybins; y++) {
             for (int x = 0; x < ed.xbins; x++) {
                 if (ed.histogram[y * ed.xbins + x] > 0) {
-                    int intensity = (int) Math.floor(255 * (1.0 - Math.log(ed.histogram[y * ed.xbins + x]) / maxGradientMagnitude));
+                    int intensity = (int) Math.floor(255 * (1.0 - Math.log(ed.histogram[y * ed.xbins + x]) / maxHistoMagnitude));
                     g2.setColor(new Color(intensity, intensity, intensity));
                     g2.fill(new Rectangle2D.Double(x * binWidth, h - (y * binHeight), binWidth, binHeight));
                 }
             }
         }
         
+        // draw triangle widget
         int ypos = h;
         int xpos = (int) (ed.triangleWidget.baseIntensity * binWidth);
         g2.setColor(Color.black);
         baseControlPoint = new Ellipse2D.Double(xpos - DOTSIZE / 2, ypos - DOTSIZE, DOTSIZE, DOTSIZE);
         g2.fill(baseControlPoint);
-        g2.drawLine(xpos, ypos, xpos - (int) (ed.triangleWidget.radius * binWidth * maxGradientMagnitude), 0);
-        g2.drawLine(xpos, ypos, xpos + (int) (ed.triangleWidget.radius * binWidth * maxGradientMagnitude), 0);
-        radiusControlPoint = new Ellipse2D.Double(xpos + (ed.triangleWidget.radius * binWidth * maxGradientMagnitude) - DOTSIZE / 2,  0, DOTSIZE, DOTSIZE);
+        g2.drawLine(xpos, ypos, xpos - (int) (ed.triangleWidget.radius * binWidth * ed.maxGradientMagnitude), 0);
+        g2.drawLine(xpos, ypos, xpos + (int) (ed.triangleWidget.radius * binWidth * ed.maxGradientMagnitude), 0);
+        radiusControlPoint = new Ellipse2D.Double(xpos + (ed.triangleWidget.radius * binWidth * ed.maxGradientMagnitude) - DOTSIZE / 2,  0, DOTSIZE, DOTSIZE);
         g2.fill(radiusControlPoint);
+        
+        // extend widget
+        int lowYPos = h - (int) (ed.triangleWidget.lowGradientMagnitude / ed.maxGradientMagnitude * ed.ybins * binHeight);
+        int upYPos = h - (int) (ed.triangleWidget.upGradientMagnitude / ed.maxGradientMagnitude * ed.ybins * binHeight);
+        g2.setColor(Color.red);
+        lowControlPoint = new Ellipse2D.Double(xpos - 10 - DOTSIZE / 2, lowYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
+        upControlPoint = new Ellipse2D.Double(xpos - 10 - DOTSIZE / 2, upYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
+        g2.fill(lowControlPoint);
+        g2.fill(upControlPoint);
+        // lowControlPoint
+        int lowLeftXPos = xpos - (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.lowGradientMagnitude);
+        int lowRightXPos = xpos + (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.lowGradientMagnitude);
+        g2.drawLine(lowLeftXPos, lowYPos, lowRightXPos, lowYPos);
+        // upControlPoint
+        int upLeftXPos = xpos - (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.upGradientMagnitude);
+        int upRightXPos = xpos + (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.upGradientMagnitude);
+        g2.drawLine(upLeftXPos, upYPos, upRightXPos, upYPos);
     }
     
     
@@ -87,16 +115,28 @@ public class TransferFunction2DView extends javax.swing.JPanel {
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            if (baseControlPoint.contains(e.getPoint()) || radiusControlPoint.contains(e.getPoint())) {
+            // extend widget
+            if (baseControlPoint.contains(e.getPoint()) || radiusControlPoint.contains(e.getPoint()) || lowControlPoint.contains(e.getPoint()) || upControlPoint.contains(e.getPoint())) {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             } else {
                 setCursor(Cursor.getDefaultCursor());
             }
+            
         }
         
         @Override
         public void mouseDragged(MouseEvent e) {
-            if (selectedBaseControlPoint || selectedRadiusControlPoint) {
+            
+            double w = getWidth();
+            double h = getHeight();
+            double binWidth = (double) w / (double) ed.xbins;
+
+            // extend widget
+            double binHeight = (double) h / ed.ybins;
+                
+            // extend widget
+            
+            if (selectedBaseControlPoint || selectedRadiusControlPoint || selectedLowControlPoint || selectedUpControlPoint) {
                 Point dragEnd = e.getPoint();
                 
                 if (selectedBaseControlPoint) {
@@ -109,20 +149,67 @@ public class TransferFunction2DView extends javax.swing.JPanel {
                         dragEnd.x = (int) (baseControlPoint.getCenterX() + 1);
                     }
                 }
+                
+                // extend widget
+                else if(selectedLowControlPoint) {
+                    // restrain to vertical movement and avoid out of range
+                    if(dragEnd.y > h) {
+                         dragEnd.y = (int)h;
+                    }
+                    if(dragEnd.y < 0) {
+                         dragEnd.y = 0;
+                    }
+                    dragEnd.setLocation(lowControlPoint.getCenterX(), dragEnd.y);
+                }
+                else if(selectedUpControlPoint) {
+                    // restrain to vertical movement and avoid out of range
+                    if(dragEnd.y > h) {
+                         dragEnd.y = (int)h;
+                    }
+                    if(dragEnd.y < 0) {
+                         dragEnd.y = 0;
+                    }
+                    dragEnd.setLocation(upControlPoint.getCenterX(), dragEnd.y);
+                }
+                
                 if (dragEnd.x < 0) {
                     dragEnd.x = 0;
                 }
                 if (dragEnd.x >= getWidth()) {
                     dragEnd.x = getWidth() - 1;
                 }
-                double w = getWidth();
-                double h = getHeight();
-                double binWidth = (double) w / (double) ed.xbins;
+                
                 if (selectedBaseControlPoint) {
                     ed.triangleWidget.baseIntensity = (short) (dragEnd.x / binWidth);
                 } else if (selectedRadiusControlPoint) {
-                    ed.triangleWidget.radius = (dragEnd.x - (ed.triangleWidget.baseIntensity * binWidth))/(binWidth*maxGradientMagnitude);
+                    ed.triangleWidget.radius = (dragEnd.x - (ed.triangleWidget.baseIntensity * binWidth))/(binWidth * ed.maxGradientMagnitude);
                 }
+                                
+                // extend widget
+                else if(selectedLowControlPoint) {
+                    double newLowGradientMagnitude = ed.maxGradientMagnitude * (h - dragEnd.y) / h;
+                    if(newLowGradientMagnitude > ed.triangleWidget.upGradientMagnitude) {
+                        ed.triangleWidget.lowGradientMagnitude = ed.triangleWidget.upGradientMagnitude;
+                        ed.triangleWidget.upGradientMagnitude = newLowGradientMagnitude;
+                    }
+                    else {
+                        ed.triangleWidget.lowGradientMagnitude = newLowGradientMagnitude;
+                    }
+                    
+                    System.out.println(ed.triangleWidget.lowGradientMagnitude);
+                }
+                else if(selectedUpControlPoint) {
+                    double newUpGradientMagnitude = ed.maxGradientMagnitude * (h - dragEnd.y) / h;
+                    if(newUpGradientMagnitude < ed.triangleWidget.lowGradientMagnitude) {
+                        ed.triangleWidget.upGradientMagnitude = ed.triangleWidget.lowGradientMagnitude;
+                        ed.triangleWidget.lowGradientMagnitude = newUpGradientMagnitude;
+                    }
+                    else {
+                        ed.triangleWidget.upGradientMagnitude = newUpGradientMagnitude;
+                    }
+                    System.out.println(ed.triangleWidget.upGradientMagnitude);
+                }
+                
                 ed.setSelectedInfo();
                 
                 repaint();
@@ -143,12 +230,27 @@ public class TransferFunction2DView extends javax.swing.JPanel {
                 selectedRadiusControlPoint = false;
                 selectedBaseControlPoint = false;
             }
+            
+            // extend widget
+            if (lowControlPoint.contains(e.getPoint())) {
+                selectedLowControlPoint = true;
+            } else if (upControlPoint.contains(e.getPoint())) {
+                selectedUpControlPoint = true;
+            } else {
+                selectedLowControlPoint = false;
+                selectedUpControlPoint = false;
+            }            
         }
         
         @Override
         public void mouseReleased(MouseEvent e) {
             selectedRadiusControlPoint = false;
             selectedBaseControlPoint = false;
+            
+            // extend widget
+            selectedLowControlPoint = false;
+            selectedUpControlPoint = false;
+            
             ed.changed();
             repaint();
         }

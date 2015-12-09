@@ -28,7 +28,7 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
     public int xbins, ybins;
     public double[] histogram;
     private short maxIntensity;
-    private double maxGradientMagnitude;
+    public double maxGradientMagnitude;
     private ArrayList<TFChangeListener> listeners = new ArrayList<TFChangeListener>();
 
     
@@ -46,8 +46,12 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
         labelGradMax.setText(Double.toString(Math.floor(10 * maxGradientMagnitude) / 10));
         labelMinVal.setText("0");
         labelMaxVal.setText(Integer.toString(maxIntensity));
-
-        triangleWidget = new TriangleWidget((short) (maxIntensity / 2), 1.0);
+        // initialize baseIntensity and radius
+        // triangleWidget = new TriangleWidget((short) (maxIntensity >> 1), (maxIntensity >> 2) / maxGradientMagnitude);
+        
+        // extend widget
+        triangleWidget = new TriangleWidget((short) (maxIntensity >> 1), (maxIntensity >> 2) / maxGradientMagnitude, 0, maxGradientMagnitude);
+        
         setSelectedInfo();
     }
 
@@ -75,9 +79,11 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
 
         histogram = new double[xbins * ybins];
         int volumeSize = vol.getDimX() * vol.getDimY() * vol.getDimZ();
+        short voxelVal = 0;
+        VoxelGradient grad = null;
         for (int i = 0; i < volumeSize; i++) {
-            short voxelVal = vol.getVoxel(i);
-            VoxelGradient grad = gradvol.getVoxel(i);
+            voxelVal = vol.getVoxel(i);
+            grad = gradvol.getVoxel(i);
             int yPos = (int) Math.floor(((ybins - 1) * grad.mag) / maxGradientMagnitude);
             histogram[yPos * xbins + voxelVal] += 1;
         }
@@ -291,11 +297,27 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
         public double radius;
         public TFColor color;
         
+        // extend widget
+        public double lowGradientMagnitude;
+        public double upGradientMagnitude;
+        
 
         public TriangleWidget(short base, double r) {
             this.baseIntensity = base;
             this.radius = r;
-            this.color = new TFColor(0.0, 204.0/255.0, 153.0/255.0, 0.3);
+            this.color = new TFColor(0.0, 204.0/255.0, 153.0/255.0, 0.9);
+        }
+        
+        // extend widget
+        public TriangleWidget(short base, double r, double lowGradientMagnitude, double upGradientMagnitude) {
+            this.baseIntensity = base;
+            this.radius = r;
+            
+            // extend widget
+            this.lowGradientMagnitude = lowGradientMagnitude;
+            this.upGradientMagnitude = upGradientMagnitude;
+            
+            this.color = new TFColor(0.0, 204.0/255.0, 153.0/255.0, 0.9);
         }
     }
 
