@@ -60,6 +60,8 @@ public class Visualization implements GLEventListener, TFChangeListener {
         canvas.display();
     }
 
+
+
     
 
 
@@ -137,7 +139,6 @@ public class Visualization implements GLEventListener, TFChangeListener {
            for (int i = 0; i < renderers.size(); i++) {
                renderers.get(i).setInteractiveMode(true);
            }
-           
        }
        
        @Override
@@ -145,7 +146,6 @@ public class Visualization implements GLEventListener, TFChangeListener {
            for (int i = 0; i < renderers.size(); i++) {
                renderers.get(i).setInteractiveMode(false);
            }
-           
            update();
        }
    }
