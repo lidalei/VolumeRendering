@@ -792,10 +792,13 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                         // reweight the opacity
                         double absDiffGradRatio = Math.abs(voxelIntensity - baseIntensity) / (voxelGradient.mag + 1e-6);
 
+                        if(voxelGradient.mag < lowGradientMagnitude || voxelGradient.mag > upGradientMagnitude)
+                            continue;
+                        
                         if(voxelGradient.mag <= 1e-6 && voxelIntensity == baseIntensity) {
                             voxelColor.a = baseColor.a;
                         }
-                        else if(voxelGradient.mag > 1e-6 && voxelGradient.mag >= lowGradientMagnitude && voxelGradient.mag <= upGradientMagnitude && absDiffGradRatio <= radius) {
+                        else if(voxelGradient.mag > 1e-6 && absDiffGradRatio <= radius) {
                             voxelColor.a = baseColor.a * (1.0 - 1.0 / radius * absDiffGradRatio);
                         }
                         else{
@@ -923,6 +926,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         }
         else if("Compositing".equals(Rendering_Method)) {
             compositing(viewMatrix);
+            System.out.println("Transfer fcuntion:" + tFunc.toString());
         }
         else if("Transfer2D".equals(Rendering_Method)) {
             TwoDTransfer(viewMatrix);

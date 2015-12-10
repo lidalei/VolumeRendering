@@ -59,6 +59,17 @@ public class TransferFunction {
     public ArrayList<ControlPoint> getControlPoints() {
         return controlPoints;
     }
+    
+    @Override
+    // return string format trnafer function
+    public String toString() {
+        String tfStr = "";
+        int numberOfControlPoints = controlPoints.size();
+        for(int i = 0; i < numberOfControlPoints; ++i) {
+            tfStr += controlPoints.get(i).toString() + ";";
+        }
+        return tfStr;
+    }
 
     public TFColor getColor(int value) {
         return LUT[computeLUTindex(value)];
