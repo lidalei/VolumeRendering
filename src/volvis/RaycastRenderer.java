@@ -51,9 +51,9 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     // ambient reflection coefficient, assuming light source is white
     TFColor SHADING_AMBIENT_COEFF = new TFColor(0.1, 0.1, 0.1, 1.0);
     // diffuse reflection coefficient
-    double SHADING_DIFF_COEFF = 0.7;
+    double SHADING_DIFF_COEFF = 0.5;
     // specular reflection coefficient
-    double SHADING_SPEC_COEFF = 0.2;
+    double SHADING_SPEC_COEFF = 0.4;
     // exponent used to approximate highligh
     double SHADING_ALPHA = 10;
     
@@ -587,15 +587,15 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 
                 // ray intersects with volume
                 if(start < end) {
-                    voxelCoord[0] = voxelCoordXStart + (start - sampleStep) * viewVec[0];
-                    voxelCoord[1] = voxelCoordYStart + (start - sampleStep) * viewVec[1];
-                    voxelCoord[2] = voxelCoordZStart + (start - sampleStep) * viewVec[2];
+                    voxelCoord[0] = voxelCoordXStart + (end + sampleStep) * viewVec[0];
+                    voxelCoord[1] = voxelCoordYStart + (end + sampleStep) * viewVec[1];
+                    voxelCoord[2] = voxelCoordZStart + (end + sampleStep) * viewVec[2];
 
 
-                    for(long u = start; u < end; u += sampleStep){
-                        voxelCoord[0] += XStep;
-                        voxelCoord[1] += YStep;
-                        voxelCoord[2] += ZStep;
+                    for(long u = end; u > start; u -= sampleStep){
+                        voxelCoord[0] -= XStep;
+                        voxelCoord[1] -= YStep;
+                        voxelCoord[2] -= ZStep;
 
                         // use Tansfer function to tansfer an intensity to a color
                         tfColor = tFunc.getColor(getVoxel(voxelCoord));
@@ -613,7 +613,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                             normalizedNormVec[0] /= (normalizedNVecLength + 1e-6);
                             normalizedNormVec[1] /= (normalizedNVecLength + 1e-6);
                             normalizedNormVec[2] /= (normalizedNVecLength + 1e-6);
-                            double dotProductNL = Math.max(-VectorMath.dotproduct(viewVec, normalizedNormVec), 0);
+                            double dotProductNL = Math.max(VectorMath.dotproduct(viewVec, normalizedNormVec), 0);
                             double dotProductNH = dotProductNL;
                             double colorIncrement = SHADING_SPEC_COEFF * Math.pow(dotProductNH, SHADING_ALPHA);
                             voxelColor.r = SHADING_AMBIENT_COEFF.r + voxelColor.r * (SHADING_DIFF_COEFF * dotProductNL + colorIncrement);
@@ -625,10 +625,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                         pixelColor.r = (1 - voxelColor.a) * pixelColor.r + voxelColor.a * voxelColor.r;
                         pixelColor.g = (1 - voxelColor.a) * pixelColor.g + voxelColor.a * voxelColor.g;
                         pixelColor.b = (1 - voxelColor.a) * pixelColor.b + voxelColor.a * voxelColor.b;
-                        pixelColor.a = (1 - voxelColor.a) * pixelColor.a;
+                        pixelColor.a = (1 - voxelColor.a) * pixelColor.a + voxelColor.a;
                     }
                     
-                    pixelColor.a = 1 - pixelColor.a;
+                    // pixelColor.a = 1 - pixelColor.a;
                     
                     // BufferedImage expects a pixel color packed as ARGB in an int
                     int c_alpha = pixelColor.a <= 1.0 ? (int) Math.floor(pixelColor.a * 255) : 255;
@@ -682,6 +682,13 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         short voxelIntensity = 0;
         VoxelGradient voxelGradient = new VoxelGradient();
         
+        // parameters to be used to shade
+        double [] NormVec = new double[3];
+        double dotProductNL = 0;
+        double dotProductNH = 0;
+        double colorIncrement = 0;
+        
+        
         // interactive mode
         int sampleStep = 1;
         if(interactiveMode == true) {
@@ -699,7 +706,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         
         double XStep = viewVec[0] * sampleStep;
         double YStep = viewVec[1] * sampleStep;
-        double ZStep = viewVec[2] * sampleStep;
+        double ZStep = viewVec[2] * sampleStep;        
         
         for (int j = 0; j < imageHeight; j ++) {
             
@@ -762,14 +769,14 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 
                 // ray intersects with volume
                 if(start < end) {
-                    voxelCoord[0] = voxelCoordXStart + (start - sampleStep) * viewVec[0];
-                    voxelCoord[1] = voxelCoordYStart + (start - sampleStep) * viewVec[1];
-                    voxelCoord[2] = voxelCoordZStart + (start - sampleStep) * viewVec[2];
+                    voxelCoord[0] = voxelCoordXStart + (end + sampleStep) * viewVec[0];
+                    voxelCoord[1] = voxelCoordYStart + (end + sampleStep) * viewVec[1];
+                    voxelCoord[2] = voxelCoordZStart + (end + sampleStep) * viewVec[2];
                     
-                    for(long u = start; u < end; u += sampleStep) {
-                        voxelCoord[0] += XStep;
-                        voxelCoord[1] += YStep;
-                        voxelCoord[2] += ZStep;
+                    for(long u = end; u > start; u -= sampleStep) {
+                        voxelCoord[0] -= XStep;
+                        voxelCoord[1] -= YStep;
+                        voxelCoord[2] -= ZStep;
 
                         // get voxel intensity
                         voxelIntensity = getVoxel(voxelCoord);
@@ -788,37 +795,36 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                         if(voxelGradient.mag <= 1e-6 && voxelIntensity == baseIntensity) {
                             voxelColor.a = baseColor.a;
                         }
-                        else if(voxelGradient.mag > 1e-6 && voxelGradient.mag > lowGradientMagnitude && voxelGradient.mag < upGradientMagnitude && absDiffGradRatio <= radius) {
+                        else if(voxelGradient.mag > 1e-6 && voxelGradient.mag >= lowGradientMagnitude && voxelGradient.mag <= upGradientMagnitude && absDiffGradRatio <= radius) {
                             voxelColor.a = baseColor.a * (1.0 - 1.0 / radius * absDiffGradRatio);
                         }
                         else{
-                            voxelColor.a = 0;
+                            // voxelColor.a = 0;
+                            continue;
                         }
                         
                         // shading
                         if(shading) {
                             // surface normal at voxel
-                            double [] normalizedNormVec = {voxelGradient.x, voxelGradient.y, voxelGradient.z};
-                            double normalizedNVecLength = VectorMath.length(normalizedNormVec);
-                            normalizedNormVec[0] /= (normalizedNVecLength + 1e-6);
-                            normalizedNormVec[1] /= (normalizedNVecLength + 1e-6);
-                            normalizedNormVec[2] /= (normalizedNVecLength + 1e-6);
-                            double dotProductNL = Math.max(-VectorMath.dotproduct(viewVec, normalizedNormVec), 0);
-                            double dotProductNH = dotProductNL;
-                            double colorIncrement = SHADING_SPEC_COEFF * Math.pow(dotProductNH, SHADING_ALPHA);
-                            voxelColor.r = SHADING_AMBIENT_COEFF.r + voxelColor.r * (SHADING_DIFF_COEFF * dotProductNL + colorIncrement);
-                            voxelColor.g = SHADING_AMBIENT_COEFF.g + voxelColor.g * (SHADING_DIFF_COEFF * dotProductNL + colorIncrement);
-                            voxelColor.b = SHADING_AMBIENT_COEFF.b + voxelColor.b * (SHADING_DIFF_COEFF * dotProductNL + colorIncrement);
+                            NormVec[0] = voxelGradient.x;
+                            NormVec[1] = voxelGradient.y;
+                            NormVec[2] = voxelGradient.z;
+                            dotProductNL = Math.max(VectorMath.dotproduct(viewVec, NormVec) / (VectorMath.length(NormVec) + 1e-6), 0);
+                            dotProductNH = dotProductNL;
+                            colorIncrement = SHADING_SPEC_COEFF * Math.pow(dotProductNH, SHADING_ALPHA);
+                            voxelColor.r = SHADING_AMBIENT_COEFF.r + voxelColor.r * (SHADING_DIFF_COEFF * dotProductNL) + colorIncrement;
+                            voxelColor.g = SHADING_AMBIENT_COEFF.g + voxelColor.g * (SHADING_DIFF_COEFF * dotProductNL) + colorIncrement;
+                            voxelColor.b = SHADING_AMBIENT_COEFF.b + voxelColor.b * (SHADING_DIFF_COEFF * dotProductNL) + colorIncrement;
                         }
 
                         // composite voxel colors
                         pixelColor.r = (1 - voxelColor.a) * pixelColor.r + voxelColor.a * voxelColor.r;
                         pixelColor.g = (1 - voxelColor.a) * pixelColor.g + voxelColor.a * voxelColor.g;
                         pixelColor.b = (1 - voxelColor.a) * pixelColor.b + voxelColor.a * voxelColor.b;
-                        pixelColor.a = (1 - voxelColor.a) * pixelColor.a;
+                        pixelColor.a = (1 - voxelColor.a) * pixelColor.a + voxelColor.a;
                     }
                     
-                    pixelColor.a = 1 - pixelColor.a;
+                    // pixelColor.a = 1 - pixelColor.a;
                                         
                     // BufferedImage expects a pixel color packed as ARGB in an int
                     int c_alpha = pixelColor.a <= 1.0 ? (int) Math.floor(pixelColor.a * 255) : 255;
