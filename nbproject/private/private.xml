@@ -3,7 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/s145465/Documents/NetBeansProjects/VolVis/src/gui/RaycastRendererPanel.java</file>
+            <file>file:/C:/Users/s145465/Documents/NetBeansProjects/VolVis/src/volvis/TransferFunction.java</file>
+            <file>file:/C:/Users/s145465/Documents/NetBeansProjects/VolVis/src/volvis/RaycastRenderer.java</file>
+            <file>file:/C:/Users/s145465/Documents/NetBeansProjects/VolVis/src/volume/GradientVolume.java</file>
+            <file>file:/C:/Users/s145465/Documents/NetBeansProjects/VolVis/src/gui/TransferFunction2DView.java</file>
         </group>
     </open-files>
 </project-private>
