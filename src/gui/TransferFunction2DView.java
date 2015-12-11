@@ -96,7 +96,7 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         int lowYPos = h - (int) (ed.triangleWidget.lowGradientMagnitude / ed.maxGradientMagnitude * ed.ybins * binHeight);
         int upYPos = h - (int) (ed.triangleWidget.upGradientMagnitude / ed.maxGradientMagnitude * ed.ybins * binHeight);
         g2.setColor(Color.green);
-        lowControlPoint = new Ellipse2D.Double(lowYPos == h ? xpos - 10 - DOTSIZE / 2 : xpos - DOTSIZE / 2, lowYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
+        lowControlPoint = new Ellipse2D.Double(lowYPos >= h - DOTSIZE ? xpos - 10 - DOTSIZE / 2 : xpos - DOTSIZE / 2, lowYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
         upControlPoint = new Ellipse2D.Double(xpos - DOTSIZE / 2, upYPos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
         g2.fill(lowControlPoint);
         g2.fill(upControlPoint);
