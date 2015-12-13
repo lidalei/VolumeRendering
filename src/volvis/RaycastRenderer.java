@@ -375,7 +375,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         // interactive mode
         int sampleStep = 1;
         if(interactiveMode == true) {
-            sampleStep = 3;
+            sampleStep = 5;
         }
 
         // define variables to control sample step length
@@ -538,7 +538,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         // interactive mode
         int sampleStep = 1;
         if(interactiveMode == true) {
-            sampleStep = 3;
+            sampleStep = 5;
         }
         
         double XStep = viewVec[0] * sampleStep;
@@ -727,7 +727,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         // interactive mode
         int sampleStep = 1;
         if(interactiveMode == true) {
-            sampleStep = 3;
+            sampleStep = 5;
         }
         
         // get base intensity, radius, and base color from TransferFunction2D
