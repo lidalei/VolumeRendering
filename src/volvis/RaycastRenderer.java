@@ -981,7 +981,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         }
         else if("Compositing".equals(Rendering_Method)) {
             compositing(viewMatrix);
-            System.out.println("Transfer fcuntion:" + tFunc.toString());
+            System.out.println("Transfer function:" + tFunc.toString());
         }
         else if("Transfer2D".equals(Rendering_Method)) {
             TwoDTransfer(viewMatrix);
