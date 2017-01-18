@@ -1,5 +1,5 @@
 # Volume Visualization
-This repository was implmented when folowing the Course Visualization at Eindhoven University of Technology (TU/e).
+This repository was implmented when following the Course Visualization at Eindhoven University of Technology (TU/e).
 
 # Contents
 * Compute intersection between a cuboid volume and a ray.
